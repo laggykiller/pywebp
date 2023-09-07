@@ -28,7 +28,7 @@ elif getenv('CIBW_ARCHS_WINDOWS') == 'ARM64':
     settings.append('os=Windows')
     settings.append('arch=armv8')
 if getenv('CIBW_BUILD') and 'musllinux' in getenv('CIBW_BUILD'):
-    build_policy = ['libwebp']
+    build_policy = []
 else:
     build_policy = ['missing']
 
