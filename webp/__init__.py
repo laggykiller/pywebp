@@ -200,7 +200,7 @@ class _WebPData:
 
 
 class WebPMemoryWriter:
-    def __init__(self, ptr: lib.WebPMemoryWriterPointer) -> None:
+    def __init__(self, ptr: "lib.WebPMemoryWriterPointer") -> None:
         self.ptr: Optional[lib.WebPMemoryWriterPointer] = ptr
 
     def __del__(self) -> None:
