@@ -39,7 +39,7 @@ class WebPError(Exception):
 class WebPConfig:
     DEFAULT_QUALITY: float = 75.0
 
-    def __init__(self, ptr: Any) -> None:
+    def __init__(self, ptr: "lib.WebPConfigPointer") -> None:
         self.ptr = ptr
 
     @property
@@ -127,7 +127,7 @@ class WebPConfig:
 
 
 class WebPData:
-    def __init__(self, ptr: Any, data_ref: Any) -> None:
+    def __init__(self, ptr: "lib.WebPDataPointer", data_ref: bytes) -> None:
         self.ptr = ptr
         self._data_ref = data_ref
 
@@ -225,7 +225,7 @@ class WebPMemoryWriter:
 
 
 class WebPPicture:
-    def __init__(self, ptr: Any) -> None:
+    def __init__(self, ptr: "lib.WebPPicturePointer") -> None:
         self.ptr = ptr
 
     def __del__(self) -> None:
@@ -236,6 +236,7 @@ class WebPPicture:
             config = WebPConfig.new()
         writer = WebPMemoryWriter.new()
         self.ptr.writer = ffi.addressof(lib, 'WebPMemoryWrite')
+        assert writer.ptr is not None
         self.ptr.custom_ptr = writer.ptr
         if lib.WebPEncode(config.ptr, self.ptr) == 0:
             raise WebPError('encoding error: ' + self.ptr.error_code)
@@ -305,7 +306,7 @@ class WebPPicture:
 
 
 class WebPDecoderConfig:
-    def __init__(self, ptr: Any) -> None:
+    def __init__(self, ptr: "lib.WebPDecoderConfigPointer") -> None:
         self.ptr = ptr
 
     @property
@@ -335,7 +336,7 @@ class WebPDecoderConfig:
 
 
 class WebPAnimEncoderOptions:
-    def __init__(self, ptr: Any) -> None:
+    def __init__(self, ptr: "lib.WebPAnimEncoderOptionsPointer") -> None:
         self.ptr = ptr
 
     @property
@@ -366,7 +367,7 @@ class WebPAnimEncoderOptions:
 
 
 class WebPAnimEncoder:
-    def __init__(self, ptr: Any, enc_opts: WebPAnimEncoderOptions) -> None:
+    def __init__(self, ptr: "lib.WebPAnimEncoderPointer", enc_opts: WebPAnimEncoderOptions) -> None:
         self.ptr = ptr
         self.enc_opts = enc_opts
 
@@ -408,7 +409,7 @@ class WebPAnimEncoder:
 
 
 class WebPAnimDecoderOptions:
-    def __init__(self, ptr: Any) -> None:
+    def __init__(self, ptr: "lib.WebPAnimDecoderOptionsPointer") -> None:
         self.ptr = ptr
 
     @property
@@ -439,7 +440,7 @@ class WebPAnimDecoderOptions:
 
 
 class WebPAnimInfo:
-    def __init__(self, ptr: Any) -> None:
+    def __init__(self, ptr: "lib.WebPAnimInfoPointer") -> None:
         self.ptr = ptr
 
     @property
@@ -461,7 +462,7 @@ class WebPAnimInfo:
 
 
 class WebPAnimDecoder:
-    def __init__(self, ptr: Any, dec_opts: WebPAnimDecoderOptions, anim_info: WebPAnimInfo) -> None:
+    def __init__(self, ptr: "lib.WebPAnimDecoderPointer", dec_opts: WebPAnimDecoderOptions, anim_info: WebPAnimInfo) -> None:
         self.ptr = ptr
         self.dec_opts = dec_opts
         self.anim_info = anim_info
@@ -504,7 +505,7 @@ class WebPAnimDecoder:
         if dec_opts is None:
             dec_opts = WebPAnimDecoderOptions.new()
         ptr = lib.WebPAnimDecoderNew(webp_data.ptr, dec_opts.ptr)
-        if ptr == ffi.NULL:
+        if ptr == ffi.NULL:  # type: ignore
             raise WebPError('failed to create decoder')
         anim_info = WebPAnimInfo.new()
         if lib.WebPAnimDecoderGetInfo(ptr, anim_info.ptr) == 0:
