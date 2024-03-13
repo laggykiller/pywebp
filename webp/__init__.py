@@ -193,13 +193,14 @@ class _WebPData:
 
     # Call this after the struct has been filled in
     def done(self, free_func: Any = lib.WebPFree) -> WebPData:
+        assert self.ptr is not None
         webp_data = WebPData(self.ptr, ffi.gc(self.ptr.bytes, free_func))
         self.ptr = None
         return webp_data
 
 
 class WebPMemoryWriter:
-    def __init__(self, ptr: Any) -> None:
+    def __init__(self, ptr: lib.WebPMemoryWriterPointer) -> None:
         self.ptr = ptr
 
     def __del__(self) -> None:
@@ -209,6 +210,8 @@ class WebPMemoryWriter:
 
     def to_webp_data(self) -> WebPData:
         _webp_data = _WebPData()
+        assert self.ptr is not None
+        assert _webp_data.ptr is not None
         _webp_data.ptr.bytes = self.ptr.mem
         _webp_data.ptr.size = self.ptr.size
         self.ptr = None
@@ -390,6 +393,7 @@ class WebPAnimEncoder:
         if lib.WebPAnimEncoderAdd(self.ptr, ffi.NULL, end_timestamp_ms, ffi.NULL) == 0:
             raise WebPError('encoding error: ' + self.ptr.error_code)
         _webp_data = _WebPData()
+        assert _webp_data.ptr is not None
         if lib.WebPAnimEncoderAssemble(self.ptr, _webp_data.ptr) == 0:
             raise WebPError('error assembling animation')
         return _webp_data.done()
@@ -666,7 +670,7 @@ def load_image(file_path: str, mode: str = 'RGBA') -> Image.Image:
         PIL.Image: The decoded Image.
     """
     arr = imread(file_path, pilmode=mode)
-    return Image.fromarray(arr, mode)
+    return Image.fromarray(arr, mode)  # type: ignore
 
 
 def save_images(imgs: List[Image.Image], file_path: str, **kwargs: Any) -> None:
@@ -693,4 +697,4 @@ def load_images(file_path: str, mode: str = 'RGBA', **kwargs: Any) -> List[Image
         list of PIL.Image: The decoded Images.
     """
     arrs = mimread(file_path, pilmode=mode, **kwargs)
-    return [Image.fromarray(arr, mode) for arr in arrs]
+    return [Image.fromarray(arr, mode) for arr in arrs]  # type: ignore
