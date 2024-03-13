@@ -1,8 +1,8 @@
 from enum import Enum
+from typing import Any, Callable, Generator, List, Optional, Tuple
 
 import numpy as np
 from PIL import Image
-from typing import Any, Callable, Generator, List, Optional, Tuple
 
 from _webp import ffi, lib
 
