@@ -1,6 +1,8 @@
-from typing import Any, Callable, overload, Literal, Tuple, Union
+from typing import Any, Callable, Generic, Literal, overload, Tuple, TypeVar, Union
 
-class Pointer[O]: ...
+O = TypeVar("O")
+
+class Pointer(Generic[O]): ...
 
 class ffi:
     NULL: Pointer[None]

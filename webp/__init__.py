@@ -2,7 +2,7 @@ from enum import Enum
 
 import numpy as np
 from PIL import Image
-from typing import Any, Generator, List, Optional, Tuple
+from typing import Any, Callable, Generator, List, Optional, Tuple
 
 from _webp import ffi, lib
 
@@ -188,7 +188,7 @@ class WebPData:
 # before bytes and size have been set)
 class _WebPData:
     def __init__(self) -> None:
-        self.ptr = ffi.new('WebPData*')
+        self.ptr: Optional[lib.WebPDataPointer] = ffi.new('WebPData*')
         lib.WebPDataInit(self.ptr)
 
     # Call this after the struct has been filled in
@@ -201,7 +201,7 @@ class _WebPData:
 
 class WebPMemoryWriter:
     def __init__(self, ptr: lib.WebPMemoryWriterPointer) -> None:
-        self.ptr = ptr
+        self.ptr: Optional[lib.WebPMemoryWriterPointer] = ptr
 
     def __del__(self) -> None:
         # Free memory if we are still responsible for it.
@@ -270,6 +270,7 @@ class WebPPicture:
         else:
             raise WebPError('unexpected array shape: ' + repr(arr.shape))
 
+        import_func: Callable[..., Any]
         if pilmode is None:
             if bytes_per_pixel == 3:
                 import_func = lib.WebPPictureImportRGB
